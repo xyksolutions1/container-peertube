@@ -101,7 +101,8 @@ RUN echo "" && \
                 --network-concurrency 20 \
                 && \
     npm run build && \
-    if [ "${PEERTUBE_CONTAINER,,}" != "${production}" ] ; then \
+    mkdir -p /app && \
+    if [ "${PEERTUBE_CONTAINER,,}" != "production" ] ; then \
         rm -rf \
             ./client/node_modules \
             ./client/.angular \
