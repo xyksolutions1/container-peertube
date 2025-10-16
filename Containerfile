@@ -3,11 +3,8 @@
 # SPDX-License-Identifier: MIT
 
 ARG \
-    BASE_IMAGE \
-    DISTRO \
-    DISTRO_VARIANT
-
-FROM ${BASE_IMAGE}:${DISTRO}_${DISTRO_VARIANT}
+    BASE_IMAGE
+FROM ${BASE_IMAGE}
 
 LABEL \
         org.opencontainers.image.title="PeerTube" \
@@ -22,9 +19,7 @@ LABEL \
 ARG \
     PEERTUBE_VERSION="v7.3.0" \
     PEERTUBE_REPO_URL="https://github.com/Chocobozzz/PeerTube" \
-    PEERTUBE_CONTAINER="PRODUCTION" \
-    YQ_VERSION="v4.47.2" \
-    YQ_REPO_URL="https://github.com/mikefarah/yq"
+    PEERTUBE_CONTAINER="PRODUCTION"
 
 COPY CHANGELOG.md /usr/src/container/CHANGELOG.md
 COPY LICENSE /usr/src/container/LICENSE
@@ -56,7 +51,6 @@ RUN echo "" && \
                                 python3 \
                                 py3-pip \
                                 yarn \
-                                yq-go \
                              " \
                             && \
     PEERTUBE_BUILD_DEPS_DEBIAN=" \
@@ -77,43 +71,17 @@ RUN echo "" && \
     source /container/base/functions/container/build && \
     container_build_log image && \
     create_user peertube 1000 peertube 1000 /dev/null && \
-    package repo key https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key nodesource.gpg && \
-    package repo add nodejs "https://deb.nodesource.com/node_22.x nodistro main" nodesource.gpg && \
-    package repo key https://www.postgresql.org/media/keys/ACCC4CF8.asc postgresql.gpg && \
-    package repo add postgres "https://apt.postgresql.org/pub/repos/apt $(cat /etc/os-release | grep 'VERSION=' | awk 'NR>1{print $1}' RS='(' FS=')')-pgdg main" postgresql.gpg && \
-    package repo key https://dl.yarnpkg.com/debian/pubkey.gpg yarn.gpg && \
-    package repo add yarn "https://dl.yarnpkg.com/debian stable main" yarn.gpg && \
+    package repo add node && \
+    package repo add postgres && \
+    package repo add yarn && \
     package update && \
     package upgrade && \
     package install \
                     PEERTUBE_BUILD_DEPS \
                     PEERTUBE_RUN_DEPS \
                     && \
-    \
-    case $(container_info distro) in \
-       debian ) \
-            mkdir -p /usr/local/go ; \
-            GOLANG_VERSION=${GOLANG_VERSION:-"$(curl -sSL https://golang.org/VERSION?m=text | head -n1 | sed "s|^go||g")"} ; \
-            curl -sSLk https://dl.google.com/go/go${GOLANG_VERSION}.linux-$(container_info arch alt).tar.gz | tar xvfz - --strip 1 -C /usr/local/go ; \
-            ln -sf /usr/local/go/bin/go /usr/local/bin/ ; \
-            ln -sf /usr/local/go/bin/godoc /usr/local/bin/ ; \
-            ln -sf /usr/local/go/bin/gfmt /usr/local/bin/ ;  \
-            clone_git_repo \
-                                "${YQ_REPO_URL}" \
-                                "${YQ_VERSION}" \
-                            /usr/src/yq && \
-            \
-            go build \
-                        -ldflags "\
-                                    -s \
-                                    -w \
-                                    -X github.com/mikefarah/yq/v4/version.Version=${YQ_VERSION} \
-                                  " \
-                        -o /usr/local/bin/yq \
-                        && \
-                container_build_log add "YQ" "${YQ_VERSION}" "${YQ_REPO_URL}" ; \
-        ;; \
-    esac ; \
+    package build go && \
+    package build yq && \
     \
     clone_git_repo "${PEERTUBE_REPO_URL}" "${PEERTUBE_VERSION}" /usr/src/peertube && \
     build_assets src /usr/src/peertube && \
@@ -197,13 +165,7 @@ RUN echo "" && \
     package remove \
                     PEERTUBE_BUILD_DEPS \
                     && \
-    \
-    package cleanup && \
-    rm -rf \
-            /usr/local/bin/go \
-            /usr/local/bin/godoc \
-            /usr/local/bin/gfmt \
-            /usr/local/go
+    package cleanup
 
 EXPOSE 1935 9000
 
