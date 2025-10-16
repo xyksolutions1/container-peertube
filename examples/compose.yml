@@ -12,7 +12,6 @@ services:
       - ./logs:/logs
     environment:
       - TIMEZONE=America/Vancouver
-      - CONTAINER_NAME=peertube-app
 
       - LOG_LEVEL=info
 

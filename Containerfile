@@ -83,6 +83,7 @@ RUN echo "" && \
     package build go && \
     package build yq && \
     \
+    mkdir -p /app && \
     clone_git_repo "${PEERTUBE_REPO_URL}" "${PEERTUBE_VERSION}" /usr/src/peertube && \
     build_assets src /usr/src/peertube && \
     build_assets scripts && \
@@ -101,7 +102,7 @@ RUN echo "" && \
                 --network-concurrency 20 \
                 && \
     npm run build && \
-    mkdir -p /app && \
+    \
     if [ "${PEERTUBE_CONTAINER,,}" != "production" ] ; then \
         rm -rf \
             ./client/node_modules \
@@ -116,7 +117,7 @@ RUN echo "" && \
                                 ; \
         \
         yarn cache clean ; \
-    \
+        \
         mkdir -p /app/packages \
                  /app/client \
                  /app/dist \

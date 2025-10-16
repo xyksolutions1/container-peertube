@@ -33,7 +33,6 @@ transform_var file \
                     SMTP_PASS \
                     SMTP_PORT \
 
-
 export HOME=/tmp/
 export NODE_ENV=production
 export NODE_CONFIG_DIR=${CONFIG_PATH}

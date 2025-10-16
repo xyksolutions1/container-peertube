@@ -9,8 +9,8 @@ peertube_bootstrap_filesystem() {
                     ${LOG_PATH}"\
                     peertube:peertube 755
 
-    create_logrotate peertube "${LOG_PATH}"/peertube.log peertube peertube
-    create_logrotate peertube-audit "${LOG_PATH}"/peertube-audit.log peertube peertube
+    create_logrotate peertube "${LOG_PATH%/}"/peertube.log peertube peertube
+    create_logrotate peertube-audit "${LOG_PATH%/}"/peertube-audit.log peertube peertube
 }
 
 peertube_configure_nginx() {
@@ -32,7 +32,7 @@ peertube_configure_nginx() {
 }
 
 peertube_generate_configuration() {
-    if [ ! -f "${CONFIG_PATH}"/"${CONFIG_FILE}" ] ; then
+    if [ ! -f "${CONFIG_PATH%/}"/"${CONFIG_FILE}" ] ; then
         s6-setuidgid peertube cp /container/data/peertube/config/production.yaml.example "${CONFIG_PATH}"/"${CONFIG_FILE}"
         s6-setuidgid peertube cp /container/data/peertube/config/custom-environment-variables.yaml "${CONFIG_PATH}"/
     fi
@@ -41,16 +41,16 @@ peertube_generate_configuration() {
                         PEERTUBE_SECRET
 
     if [ -z "${PEERTUBE_SECRET}" ]; then
-        if [ ! -f "${CONFIG_PATH}/.peertube.secret" ]; then
+        if [ ! -f "${CONFIG_PATH%/}/.peertube.secret" ]; then
             openssl rand -hex 32 > "${CONFIG_PATH}"/.peertube.secret
             print_info "Automatically generated PEERTUBE_SECRET - turn it into an environment variable with contents of '${CONFIG_PATH}/.peertube.secret'"
         fi
-        export PEERTUBE_SECRET=$(cat "${CONFIG_PATH}"/.peertube.secret)
+        export PEERTUBE_SECRET=$(cat "${CONFIG_PATH%/}"/.peertube.secret)
     fi
 
     s6-setuidgid peertube yq -i '
                                     .secrets.peertube = env(PEERTUBE_SECRET)
-                                ' "${CONFIG_PATH}"/"${CONFIG_FILE}"
+                                ' "${CONFIG_PATH%/}"/"${CONFIG_FILE}"
 
     transform_var file \
                         DB_HOST \
