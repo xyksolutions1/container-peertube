@@ -33,8 +33,8 @@ peertube_configure_nginx() {
 
 peertube_generate_configuration() {
     if [ ! -f "${CONFIG_PATH%/}"/"${CONFIG_FILE}" ] ; then
-        s6-setuidgid peertube cp /container/data/peertube/config/production.yaml.example "${CONFIG_PATH}"/"${CONFIG_FILE}"
-        s6-setuidgid peertube cp /container/data/peertube/config/custom-environment-variables.yaml "${CONFIG_PATH}"/
+        s6-setuidgid peertube cp /container/data/peertube/config/production.yaml.example "${CONFIG_PATH%/}"/"${CONFIG_FILE}"
+        s6-setuidgid peertube cp /container/data/peertube/config/custom-environment-variables.yaml "${CONFIG_PATH%/}"/
     fi
 
     transform_var file \
@@ -42,7 +42,7 @@ peertube_generate_configuration() {
 
     if [ -z "${PEERTUBE_SECRET}" ]; then
         if [ ! -f "${CONFIG_PATH%/}/.peertube.secret" ]; then
-            openssl rand -hex 32 > "${CONFIG_PATH}"/.peertube.secret
+            openssl rand -hex 32 > "${CONFIG_PATH%/}"/.peertube.secret
             print_info "Automatically generated PEERTUBE_SECRET - turn it into an environment variable with contents of '${CONFIG_PATH}/.peertube.secret'"
         fi
         export PEERTUBE_SECRET=$(cat "${CONFIG_PATH%/}"/.peertube.secret)
