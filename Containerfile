@@ -17,7 +17,7 @@ LABEL \
         org.opencontainers.image.licenses="MIT"
 
 ARG \
-    PEERTUBE_VERSION="v7.3.0" \
+    PEERTUBE_VERSION="v8.0.0" \
     PEERTUBE_REPO_URL="https://github.com/Chocobozzz/PeerTube" \
     PEERTUBE_CONTAINER="PRODUCTION"
 
@@ -50,7 +50,6 @@ RUN echo "" && \
                                 prosody \
                                 python3 \
                                 py3-pip \
-                                yarn \
                              " \
                             && \
     PEERTUBE_BUILD_DEPS_DEBIAN=" \
@@ -65,15 +64,13 @@ RUN echo "" && \
                                     python3 \
                                     python3-pip \
                                     prosody \
-                                    yarn \
                                 " \
                                 && \
     source /container/base/functions/container/build && \
     container_build_log image && \
     create_user peertube 1000 peertube 1000 /dev/null && \
-    package repo add node && \
+    package repo add node 22 && \
     package repo add postgres && \
-    package repo add yarn && \
     package update && \
     package upgrade && \
     package install \
@@ -82,24 +79,15 @@ RUN echo "" && \
                     && \
     package build go && \
     package build yq && \
+    npm install -g pnpm && \
     \
     mkdir -p /app && \
     clone_git_repo "${PEERTUBE_REPO_URL}" "${PEERTUBE_VERSION}" /usr/src/peertube && \
     build_assets src /usr/src/peertube && \
     build_assets scripts && \
     \
-    cd /usr/src/peertube && \
-    \
-    cd client && \
-    yarn install \
-                --pure-lockfile \
-                --network-timeout 1200000 \
-                && \
-    cd ../ && \
-    yarn install \
-                --pure-lockfile \
-                --network-timeout 1200000 \
-                --network-concurrency 20 \
+    pnpm install \
+                --frozen-lockfile \
                 && \
     npm run build && \
     \
@@ -109,14 +97,13 @@ RUN echo "" && \
             ./client/.angular \
             ./node_modules \
             ; \
-        NOCLIENT=1 yarn install \
-                                --pure-lockfile \
-                                --production \
-                                --network-timeout 1200000 \
-                                --network-concurrency 20 \
+        NOCLIENT=1 pnpm install \
+                                --frozen-lockfile \
+                                --prod \
+                                --yes \
                                 ; \
         \
-        yarn cache clean ; \
+        pnpm store prune ; \
         \
         mkdir -p /app/packages \
                  /app/client \
@@ -169,6 +156,8 @@ RUN echo "" && \
                     && \
     package cleanup
 
-EXPOSE 1935 9000
+EXPOSE \
+        1935 \
+        9000
 
 COPY rootfs/ /

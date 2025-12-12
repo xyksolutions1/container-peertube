@@ -6,7 +6,7 @@ peertube_bootstrap_filesystem() {
     create_folder \
                     "${CONFIG_PATH},\
                     ${DATA_PATH},\
-                    ${LOG_PATH}"\
+                    ${LOG_PATH}" \
                     peertube:peertube 755
 
     create_logrotate peertube "${LOG_PATH%/}"/peertube.log peertube peertube
@@ -54,11 +54,11 @@ peertube_generate_configuration() {
 
     transform_var file \
                         DB_HOST \
-                        DB_PORT \
-                        DB_USER \
+                        DB_NAME \
                         DB_PASS \
+                        DB_PORT \
                         DB_SUFFIX \
-                        DB_NAME
+                        DB_USER \
 
     sanity_var DB_USER "DB Username"
     sanity_var DB_PASS "DB Password"
