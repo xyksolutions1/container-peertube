@@ -17,7 +17,7 @@ LABEL \
         org.opencontainers.image.licenses="MIT"
 
 ARG \
-    PEERTUBE_VERSION="v8.0.0" \
+    PEERTUBE_VERSION="v8.0.1" \
     PEERTUBE_REPO_URL="https://github.com/Chocobozzz/PeerTube" \
     PEERTUBE_CONTAINER="PRODUCTION"
 
