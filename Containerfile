@@ -4,16 +4,16 @@
 
 ARG \
     BASE_IMAGE
-FROM ${BASE_IMAGE}
+FROM docker.io/xyksolutions1/container-nginx:latest
 
 LABEL \
         org.opencontainers.image.title="PeerTube" \
         org.opencontainers.image.description="Decntralized video hosting network" \
-        org.opencontainers.image.url="https://hub.docker.com/r/nfrastack/peertube" \
-        org.opencontainers.image.documentation="https://github.com/nfrastack/container-peertube/blob/main/README.md" \
-        org.opencontainers.image.source="https://github.com/nfrastack/container-peertube.git" \
-        org.opencontainers.image.authors="Nfrastack <code@nfrastack.com>" \
-        org.opencontainers.image.vendor="Nfrastack <https://www.nfrastack.com>" \
+        org.opencontainers.image.url="https://hub.docker.com/r/xyksolutions1/peertube" \
+        org.opencontainers.image.documentation="https://github.com/xyksolutions1/container-peertube/blob/main/README.md" \
+        org.opencontainers.image.source="https://github.com/xyksolutions1/container-peertube.git" \
+        org.opencontainers.image.authors="xyksolutions1" \
+        org.opencontainers.image.vendor="xyksolutions1" \
         org.opencontainers.image.licenses="MIT"
 
 ARG \
@@ -34,8 +34,8 @@ ENV \
     NGINX_SITE_ENABLED=peertube \
     NGINX_USER=peertube \
     NGINX_GROUP=peertube \
-    IMAGE_NAME="nfrastack/peertube" \
-    IMAGE_REPO_URL="https://github.com/nfrastack/container-peertube/"
+    IMAGE_NAME="xyksolutions1/peertube" \
+    IMAGE_REPO_URL="https://github.com/xyksolutions1/container-peertube/"
 
 RUN echo "" && \
     PEERTUBE_BUILD_DEPS_ALPINE=" \
